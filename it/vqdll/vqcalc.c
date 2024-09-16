@@ -205,7 +205,7 @@
 	#define DEB_OUT  fprintf(DebFile, 
 	
 #else
-	#define DEB_OUT /##/
+	#error "DEBUG must be defined"
 #endif
 
 
@@ -216,8 +216,8 @@
 */
 /******************************************************************************/
 
-
-#define LITTLE_ENDIAN (1)
+#undef LITTLE_ENDIAN
+#define LITTLE_ENDIAN (__BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__)
 typedef unsigned char U8;
 
 /*
@@ -247,7 +247,7 @@ typedef unsigned char U8;
 
 
 #if DEBUG
-	static void myassert(int expression, char * File, int line);
+	static void myAssert(int expression, char * File, int line);
 	#define ASSERT(X) {myAssert(X, __FILE__, __LINE__);}
 #else
 	#define ASSERT(X)
@@ -510,6 +510,7 @@ static void myAssert(int expression, char * File, int line)
 		fprintf(stderr, "Failed Assertion: File %s, Line %d\n", File, line);
 
 		a = 1;  /* put a break point here when debugging*/
+		(void)a;
 		assert(0);
 	}
 
@@ -569,16 +570,16 @@ typedef struct
 static const int BitDepths[4][4]=
 {
  	/* FORMAT_4444*/
-	4,4,4,4,   /*Red, Green, Blue, Alpha*/
+	{4, 4, 4, 4},   /*Red, Green, Blue, Alpha*/
 
 	/* FORMAT_1555   -- is also 555*/ 
-	5, 5, 5, 1,
+	{5, 5, 5, 1},
 
 	/* FORMAT_565 */
-	5, 6, 5, 0,
+	{5, 6, 5, 0},
 
 	/* FORMAT_YUV */
-	8, 8, 0, 0
+	{8, 8, 0, 0}
 
 };
 
@@ -4136,7 +4137,7 @@ int WriteVqfMemory(		void *MemoryOut,
 *************************************************/
 typedef int NeighbCountType[MAX_CODES][MAX_CODES];
 
-static void OptimisePlacement(const IMAGE_VECTOR_STRUCT *Maps[MAX_MIP_LEVELS],
+static void OptimisePlacement(IMAGE_VECTOR_STRUCT *Maps[MAX_MIP_LEVELS],
 					 	const	int NumMaps,
 					  	const 	int nNumCodes,
 								int Reorder[MAX_CODES])
