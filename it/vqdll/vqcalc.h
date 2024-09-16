@@ -1,3 +1,4 @@
+#pragma once
 /******************************************************************************
  * Name			: VQCALC.H
  * Title		: Vector Quantisation Compression Code
@@ -86,10 +87,75 @@ typedef enum
 #define VQ_BASE_METRIC_MASK     0x0F
 
 
+/*
+// Define the interface types etc.
+//
+// Note for IMG TECH: these MUST be the same as in vqcalc.h
+*/
+
+
+/* Error Return messages */
+
+#define VQ_OUTOFMEMORY	-1
+#define VQ_INVALID_SIZE -2
+#define VQ_INVALID_PARAMETER -3
+
+/*
+// Settings for output format
+//
+// Transparent formats.
+*/
+#define	FORMAT_4444 (0)   /* The BEST mode for quality transparency*/
+#define	FORMAT_1555 (1)	  /*This also doubles for the opaque 555 format*/
+
+/*
+// Opaque formats
+*/
+#define	FORMAT_555  (FORMAT_1555)
+#define FORMAT_565	(2)   /*Either this of YUV is the best format for Opaque*/
+
+#define FORMAT_YUV	(3)
+
+/*
+// for future expansion
+*/
+//#define FORMAT_BUMP	(4)
+
+
+/*
+// The following flag can be ORed with the previous values
+// to form a variation on the colour metric. It makes the
+// compressor tolerate greater inaccuracy in high frequency
+// changes.
+*/
+#define VQMETRIC_FREQUENCY_FLAG 0x10
+#define VQ_BASE_METRIC_MASK     0x0F
+
+
+/*
+//MIP map modes
+*/
+typedef enum
+{
+	VQ_NO_MIPMAP = 0,    /*not recommended - it doesn't look good, and it can cause pagebreaks*/
+	VQ_GENERATE_MIPMAP,  /*automatically generate the MIP map from base level*/
+	VQ_SUPPLIED_MIPMAP	 /*The user has supplied the MIP map levels. These are assumed
+						  *to have been packed from largest level to smallest in the supplied
+						  *RGB and optional alpha data*/
+}VQ_MIPMAP_MODES;
+
+typedef enum
+{
+	VQ_GROUP_ALLOW_MIXED,
+	VQ_GROUP_NO_MIXED
+}VQ_GROUP_MODES;
+
+#define VQ_MIXED_GROUP_ID (255)
+
 typedef enum
 {
  	VQNoDither = 0,
-	VQSubtleDither,  /*50% error diffusion*/
+        VQSubtleDither,
 	VQFullDither
 } VQ_DITHER_TYPES;
 

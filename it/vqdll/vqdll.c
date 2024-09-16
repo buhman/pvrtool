@@ -1,23 +1,5 @@
-#include <windows.h>
-
 #include "vqcalc.h"
-
-#define MyDllExport    __declspec( dllexport )
-#include "Vqdll.h"
-
-
-static HINSTANCE GlobalhInstance;
-
-int WINAPI DllMain ( HINSTANCE hInstance, DWORD fdwReason, PVOID pvReserved)
-{
-
-	GlobalhInstance = hInstance;
-	return TRUE;
-}
-
-
-
-
+#include "vqdll.h"
 
 /*
 // The VQ compressor. See header file (vqdll.h) for more details.
@@ -159,6 +141,7 @@ MyDllExport int VqCalc(	void*	InputArrayRGB,
 // VERSION information. Added at the request of Sega Europe
 */
 
+#if 0
 MyDllExport void VqGetVersionInfoString( char* pszVersionInfoString, const char* pszKey )
 {
 	WORD* pwLang = NULL;
@@ -204,10 +187,8 @@ MyDllExport void VqGetVersionInfoString( char* pszVersionInfoString, const char*
     }
     GlobalFree( pVoid );
 }
-
-
+#endif
 
 /*
 // END OF FILE
 */
-

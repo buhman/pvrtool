@@ -1,3 +1,4 @@
+#pragma once
 /*
 // FILE: 		vqdll.h
 //
@@ -13,6 +14,9 @@
 //
 //
 //	$Log: vqdll.h,v $
+ * Revision 1.5  2000/03/28  15:15:12  sjf
+ * Added "grouped VQ" interface function.
+ *
  * Revision 1.4  2000/01/10  15:42:29  sjf
  * Added "Vq" to the name of the info function.
  *
@@ -50,83 +54,7 @@
 #define MyDllExport
 #endif
 
-/*
-// Define the interface types etc.
-//
-// Note for IMG TECH: these MUST be the same as in vqcalc.h
-*/
-#ifndef VQ_OUTOFMEMORY
-
-
-/* Error Return messages */
-
-#define VQ_OUTOFMEMORY	-1
-#define VQ_INVALID_SIZE -2
-#define VQ_INVALID_PARAMETER -3
-
-/*
-// Settings for output format
-//
-// Transparent formats.
-*/
-#define	FORMAT_4444 (0)   /* The BEST mode for quality transparency*/
-#define	FORMAT_1555 (1)	  /*This also doubles for the opaque 555 format*/
-
-/*
-// Opaque formats
-*/
-#define	FORMAT_555  (FORMAT_1555)
-#define FORMAT_565	(2)   /*Either this of YUV is the best format for Opaque*/
-
-#define FORMAT_YUV	(3)
-
-/*
-// for future expansion
-*/
-//#define FORMAT_BUMP	(4)
-
-
-typedef enum
-{
- 	VQNoDither = 0,
-	VQSubtleDither,
-	VQFullDither
-} VQ_DITHER_TYPES;
-
-
-/*
-// Colour space metrics
-*/
-typedef enum
-{
- 	VQMetricEqual = 0,	/*equal spacing*/
-	VQMetricWeighted,
-
-	/*
-	// The following name is for backward compatibility only.
-	*/
-	VQMetricRGB = VQMetricEqual
-
-} VQ_COLOUR_METRIC;
-
-
-/*
-// The following flag can be ORed with the previous values
-// to form a variation on the colour metric. It makes the
-// compressor tolerate greater inaccuracy in high frequency
-// changes.
-*/
-#define VQMETRIC_FREQUENCY_FLAG 0x10
-#define VQ_BASE_METRIC_MASK     0x0F
-
-
-#endif
-
-
-
-
-
-
+#include "vqcalc.h"
 
 /******************************************************************************/
 /*
@@ -149,8 +77,8 @@ typedef enum
 //								1024x1024
 //				ReservedA		Supply as 0
 //
-//				bMipMap			Generate MIP map. Recommended for rendering speed &
-//								quality
+//				MipMapMode		See VQ_MIPMAP_MODES
+//
 //				bAlphaOn		Is alpha data supplied? If not, assumed Alpha == 0xFF
 //
 //				bIncludeHeader	Optionally prepends the 12byte .VQF file format data. If
@@ -205,25 +133,108 @@ MyDllExport int VqCalc2(void*	InputArrayRGB,
 						void*	InputArrayAlpha,
 						void*	OutputMemory,
 
-						int		bBGROrder,
-						int		nWidth,
-						int		Reserved0,
+						int		BGROrder,		/*if data is ordered as BGR not RGB*/
+						int		nWidth,			/*Square textures, power of 2 sizes*/
+						int		Reserved0, 		/*Reserved. Set it to 0 */
 
-						int		bMipMap,
-						int		bAlphaOn,
-						int		bIncludeHeader,
+						int		bMipMap,		/*Generate MIP map. RECOMMENDED!*/
+						int		bAlphaOn,		/*Is Alpha supplied?*/
+
+						int		bIncludeHeader,	/*include the 12 byte header?*/
+
+			VQ_DITHER_TYPES		DitherLevel,	/* Level of dithering required */
+
+						int		nNumCodes,		/*Maximum codes requested*/
+						int		nColourFormat,	/*see formats above		 */
+
+						int		bInvertAlpha,	/*To support Old PVR1 files that had odd alpha */
+
+			VQ_COLOUR_METRIC 	Metric,			/*how to estimate colour differences*/
+						int 	Reserved1,		/*Reserved. Set it to 0 */
+
+						float	*fErrorFound);
+
+/******************************************************************************/
+/*
+// Function: 	VqCalcGrouped
+//
+// Description: DLL version of CreateVqGrouped function.
+//
+//		This is very similar to the VqCalc2, except that it doesn't handle alpha.
+//		Instead, it allows the user to specify an unsigned 8bit "group" value per pixel.
+//		Code book entries will then be arranged according to their group.
+//		
+//		The group value is treated as another "colour component" except that it is
+//		weighted *much* higher than, say, R,G, or B.
+//		
+//		If, for a given code book, there are pixels from more than one group, two possible
+//		actions can happen, depending on the parameter "GroupMode"
+//		
+//		if GroupMode == VQ_GROUP_ALLOW_MIXED, then any code with mixed pixels will
+//		automatically be put in "255", which can be considered to be the "Mixed" group.
+//		
+//		if GroupMode == VQ_GROUP_NO_MIXED, then the system finds the highest occuring group
+//		in the codebooks pixels. In the event of a tie, the least valued group id is used.
+//			Example 1: Pixels in groups 5,1,4,5 => code book given group 5
+//			Example 2  					5,5,4,4 => code book is assigned group 4
+//		
+//		
+//		To determine which codes are in which groups, use "GroupCounts". The codes
+//		are arranged in their groups from smallest used group ID to highest. This array
+//		returns how many are in each group.
+//		
+//		**************************************
+//		***SPECIAL CASE FOR MIP MAPPED YUV ***
+//		**************************************
+//		As with all the VQcalc routines, the 1x1 level of a YUV texture uses a 565 format.
+//		This map is always given it's own unique code which is stored at (nNumCodes-1) code.
+//		In effect, it  is also considered to be in its own unique group. If you sum up the
+//		values in GroupCounts, you will also see that it is not included (since there isn't
+//		a spare ID left)
+//
+//
+//
+// Inputs:		See VqCalc2 for most parameters.
+//
+//
+// Outputs:
+//				fErrorFound		returned RMS error per colour channel
+//				
+//				GroupCounts		Reports how many code book entries are in each group. Codes
+//								with the same group are arranged contiguously, from the smallest
+//								group id, to the largest.
+//
+// Returned Val: As for VqCalc2
+//
+*/
+/******************************************************************************/
+
+MyDllExport int VqCalcGrouped(const void*	InputArrayRGB,
+						      const void*	InputArrayGroupInfo,
+						         	void*	OutputMemory, 
+
+						int		BGROrder,
+						int		nWidth,
+						int		Reserved1,
+			VQ_MIPMAP_MODES		MipMapMode,
+
+						int		IncludeHeader,
 
 			VQ_DITHER_TYPES		DitherLevel,
 
 						int		nNumCodes,
 						int		nColourFormat,
-						int		bInvertAlpha,
 
-						VQ_COLOUR_METRIC 	Metric, /*a VQ_COLOUR_METRIC value optionally ored with	frequency flag*/
-						int 	Reserved1,
+			VQ_GROUP_MODES		GroupMode, /*see VQ_GROUP_MODES */
+
+						int 	Metric,
+
+						int 	Reserved2,
+
+						int		GroupCounts[256],/*the number of codes in each group,  
+												  NOTE group 255 is always the "Mixed pixel" group.*/
+
 						float	*fErrorFound);
-
-
 
 
 /******************************************************************************/
