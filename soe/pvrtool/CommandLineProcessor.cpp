@@ -170,7 +170,7 @@ bool CCommandLineProcessor::RegisterCommandLineOption( const char* pszLongSwitch
 }
 
 
-bool CCommandLineProcessor::RegisterCommandLineOption( const char* pszLongSwitch, const char* pszShortSwitch, int nCommandLineOptions, const char* pszDescription, int nFlags, char** ppszValue, bool* pbFound /*NULL*/ )
+bool CCommandLineProcessor::RegisterCommandLineOption( const char* pszLongSwitch, const char* pszShortSwitch, int nCommandLineOptions, const char* pszDescription, int nFlags, const char** ppszValue, bool* pbFound /*NULL*/ )
 {
     //build command line option structure
     CommandLineOption Option;

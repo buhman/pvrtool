@@ -4,11 +4,14 @@
 
 **************************************************/
 
+#include <assert.h>
 #include <stdio.h>
-#include <windows.h>
 #include <time.h>
-#include "picture.h"
-#include "image.h"
+#include <string.h>
+#include "max_path.h"
+#include "stricmp.h"
+#include "Picture.h"
+#include "Image.h"
 #include "VQImage.h"
 #include "VQCompressor.h"
 #include "CommandLineProcessor.h"
@@ -33,10 +36,10 @@ extern const char* g_pszSupportedFormats[];
 //////////////////////////////////////////////////////////////////////
 // Globals
 //////////////////////////////////////////////////////////////////////
-char* g_pszAlphaFilename = "";
-char* g_pszAlphaPrefix = "";
-char* g_pszOutputExtension = "PVR";
-char* g_pszOutputPath = "";
+const char* g_pszAlphaFilename = "";
+const char* g_pszAlphaPrefix = "";
+const char* g_pszOutputExtension = "PVR";
+const char* g_pszOutputPath = "";
 CImage g_Image;
 CVQCompressor g_VQCompressor;
 
@@ -64,11 +67,11 @@ int g_nSucceeded = 0;
 //////////////////////////////////////////////////////////////////////
 void DisplayParameters()
 {
-    if( &g_pszOutputPath ) printf( "Output path: %s\n", g_pszOutputPath );
+    if( *g_pszOutputPath ) printf( "Output path: %s\n", g_pszOutputPath );
     if( *g_pszAlphaFilename ) printf( "Alpha filename: %s\n", g_pszAlphaFilename );
     printf( "Twiddle %s\n", g_SaveOptions.bTwiddled ? "on" : "off" );
     printf( "Mipmaps %s\n", g_SaveOptions.bMipmaps ? "on" : "off" );
-    if( g_bEnableGlobalIndex ) printf( "Global Index starting at %d\n", g_nGlobalIndex ); else printf( "Global Index disabled\n" );
+    if( g_bEnableGlobalIndex ) printf( "Global Index starting at %ld\n", g_nGlobalIndex ); else printf( "Global Index disabled\n" );
     printf( "Colour format: " );
     switch( g_SaveOptions.ColourFormat )
     {
@@ -79,6 +82,7 @@ void DisplayParameters()
         case ICF_555:       printf( "555\n" ); break;
         case ICF_SMARTYUV:  printf( "SMARTYUV\n" ); break;
         case ICF_YUV422:    printf( "YUV422\n" ); break;
+        default: assert(false);
     }
     if( g_SaveOptions.nPaletteDepth ) printf( "Palette Depth: %dbpp\n", g_SaveOptions.nPaletteDepth );
 
@@ -163,13 +167,13 @@ bool BatchLoadMipmap( CImage& Image, const char* pszFilename )
     for( int iMipMap = 1; iMipMap < nMipMaps; iMipMap++ )
     {
         //build filename
-        char szMMFilename[MAX_PATH+1], szPrefix[10];
-        sprintf( szPrefix, "%d", iMipMap );
+        char szMMFilename[MAX_PATH+1], szPrefix[11];
+        snprintf( szPrefix, (sizeof (szPrefix)), "%d", iMipMap );
         PrefixFileName( szMMFilename, pszFilename, szPrefix );
 
         //load the image
         CImage MMImage;
-        char szDimension[10]; sprintf( szDimension, "%dx%d", (pRGBA->nWidth >> iMipMap), (pRGBA->nHeight >> iMipMap) );
+        char szDimension[24]; snprintf( szDimension, (sizeof (szDimension)), "%dx%d", (pRGBA->nWidth >> iMipMap), (pRGBA->nHeight >> iMipMap) );
         printf( "%10s Image: %s ...", szDimension, szMMFilename );
         if( MMImage.Load( szMMFilename ) )
         {
@@ -346,7 +350,7 @@ bool ProcessFile( const char* pszFilename )
 //////////////////////////////////////////////////////////////////////
 // Program entry point
 //////////////////////////////////////////////////////////////////////
-void main( int argc, char* argv[] )
+int main( int argc, char* argv[] )
 {
     clock_t start = clock();
 
@@ -365,7 +369,7 @@ void main( int argc, char* argv[] )
 
     /* initialise the command line processor */
     bool bShowHelp = false, bShowExamples = false, bQuiet = false, bTimeTask = false, bShowParameters = false, bReverseAlpha = false;
-    char* pszColourFormat = "SMART";
+    const char* pszColourFormat = "SMART";
     int nVQDither = 0, nVQWeighting = 0;
 
     //add all command line switches to the command line processor   
@@ -420,7 +424,7 @@ void main( int argc, char* argv[] )
         if( !CommandLine.ParseCommandLine() )
         {
             ShowErrorMessage( CommandLine.m_szErrorMessage );
-            return;
+            return -1;
         }
     }
 
@@ -487,26 +491,26 @@ void main( int argc, char* argv[] )
             g_SaveOptions.ColourFormat = g_VQCompressor.m_icf = ICF_8888; 
         }
         else
-        { ShowErrorMessage( "%s - unknown colour format", pszColourFormat ); return; }
+        { ShowErrorMessage( "%s - unknown colour format", pszColourFormat ); return -1; }
         switch( nVQDither )
         {
             case 0: g_VQCompressor.m_Dither = VQNoDither; break;
             case 1: g_VQCompressor.m_Dither = VQSubtleDither; break;
             case 2: g_VQCompressor.m_Dither = VQFullDither; break;
-            default: ShowErrorMessage( "%d - unknown dither option", nVQDither ); return;
+            default: ShowErrorMessage( "%d - unknown dither option", nVQDither ); return -1;
         }
         switch( nVQWeighting )
         {
             case 0: g_VQCompressor.m_Metric = VQMetricEqual; break;
             case 1: g_VQCompressor.m_Metric = VQMetricWeighted; break;
-            default: ShowErrorMessage( "%d - unknown weighting option", nVQWeighting ); return;
+            default: ShowErrorMessage( "%d - unknown weighting option", nVQWeighting ); return -1;
         }
         if( g_SaveOptions.nPaletteDepth )
         {
             if( g_SaveOptions.nPaletteDepth != 4 && g_SaveOptions.nPaletteDepth != 8 )
             {
                 ShowErrorMessage( "%d - unknown palette depth", g_SaveOptions.nPaletteDepth );
-                return;
+                return -1;
             }
 
             DisplayStatusMessage( "Palettised VQ is not supported. Disabling VQ compression.\n" );
@@ -515,7 +519,7 @@ void main( int argc, char* argv[] )
         if( g_bPagedMipmap && g_bBatchMipmap )
         {
             ShowErrorMessage( "Paged and batch mipmap loading options cannot be used together\n" );
-            return;
+            return -1;
             
         }
         g_VQCompressor.m_bMipmap = g_SaveOptions.bMipmaps;
@@ -530,7 +534,7 @@ void main( int argc, char* argv[] )
         if( CommandLine.ProcessAllFiles( ProcessFile ) == false )
         {
             ShowErrorMessage( CommandLine.m_szErrorMessage );
-            return;
+            return -1;
         }
 
 
