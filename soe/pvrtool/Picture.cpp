@@ -8,6 +8,7 @@
 
 
 **************************************************/
+#include <assert.h>
 #include <stdio.h>
 #include <string.h>
 #include "stricmp.h"
@@ -19,6 +20,7 @@
 #include "C.h"
 #include "PIC.h"
 //#include "paintlib/paintlib.h"
+#include "stb_image.h"
 
 const char* g_pszSupportedFormats[] =
 {
@@ -124,6 +126,45 @@ bool LoadPictureUsingPaintLib( const char* pszFilename, MMRGBA& mmrgba, unsigned
 }
 */
 
+bool LoadPicture_stb_image(const char * filename, MMRGBA& mmrgba, unsigned long int dwFlags)
+{
+  bool use_alpha = (dwFlags & LPF_LOADALPHA) != 0;
+  int request_components = use_alpha ? 4 : 3;
+  int components;
+  int width;
+  int height;
+  unsigned char * data = stbi_load(filename, &width, &height, &components, request_components);
+  if (!data) {
+    return false;
+  }
+  assert(components == 4 || components == 3);
+
+  unsigned short int flags = 0
+    | MMINIT_RGB
+    | ((components == 4) ? MMINIT_ALPHA : 0)
+    | MMINIT_ALLOCATE
+    ;
+
+  mmrgba.Init(flags, width, height);
+
+  unsigned char * rgb = *mmrgba.pRGB;
+  unsigned char * alpha = NULL;
+  if (components == 4) alpha = *mmrgba.pAlpha;
+
+  for (int i = 0; i < width * height; i++) {
+    rgb[i * 3 + 0] = data[i * 4 + 2];
+    rgb[i * 3 + 1] = data[i * 4 + 1];
+    rgb[i * 3 + 2] = data[i * 4 + 0];
+    if (components == 4) {
+      alpha[i] = data[i * 4 + 3];
+    }
+  }
+
+  mmrgba.bPalette = false;
+
+  return true;
+}
+
 //////////////////////////////////////////////////////////////////////
 // Loads the given file into the mmrgba object
 //////////////////////////////////////////////////////////////////////
@@ -152,8 +193,7 @@ bool LoadPicture( const char* pszFilename, MMRGBA& mmrgba, unsigned long int dwF
     //see if the paintlib can handle it
     //if( LoadPictureUsingPaintLib( pszFilename, mmrgba, dwFlags ) ) return true;
 
-
-
+    if (LoadPicture_stb_image(pszFilename, mmrgba, dwFlags)) return true;
 
     //unsupported file type
     return false;

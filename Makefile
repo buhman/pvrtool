@@ -11,6 +11,7 @@ CFLAGS += -I$(ROOT_DIR) -I$(ROOT_DIR)/it/vqdll
 CXXSTD = -std=c++23
 CXXFLAGS =
 
+
 OBJ = \
 	soe/pvrtool/C.o \
 	soe/pvrtool/Colour.o \
@@ -30,7 +31,8 @@ OBJ = \
 	it/vqdll/vqdll.o \
 	findfirst.o \
 	stricmp.o \
-	strupr.o
+	strupr.o \
+	stb_image.o
 
 all: pvrtool
 
@@ -44,7 +46,8 @@ pvrtool: $(OBJ)
 	$(CC) $(CSTD) $(CFLAGS) -c $< -o $@
 
 clean:
-	rm -f *.o
+	find -type f -iname '*.o' -exec rm {} \;
+	rm -f pvrtool
 
 .SUFFIXES:
 .INTERMEDIATE:

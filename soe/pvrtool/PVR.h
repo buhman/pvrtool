@@ -2,6 +2,7 @@
 #define _PVR_H_
 #pragma pack( push, 1 )
 
+#include <stdint.h>
 #include "Picture.h"
 
 //externals
@@ -45,29 +46,31 @@ extern bool g_bEnableGlobalIndex;
 
 struct GlobalIndexHeader 
 {
-    unsigned char GBIX[4];
-    unsigned long int nByteOffsetToNextTag;
-    unsigned long int nGlobalIndex;
+    uint8_t GBIX[4];
+    uint32_t nByteOffsetToNextTag;
+    uint32_t nGlobalIndex;
 };
+static_assert((sizeof (struct GlobalIndexHeader)) == 12);
 
 struct PVRHeader 
 {
-    unsigned char PVRT[4];
-    unsigned long int nTextureDataSize;
-    unsigned long int nTextureType;
-    unsigned short int nWidth;
-    unsigned short int nHeight;
+    uint8_t PVRT[4];
+    uint32_t nTextureDataSize;
+    uint32_t nTextureType;
+    uint16_t nWidth;
+    uint16_t nHeight;
 };
+static_assert((sizeof (struct PVRHeader)) == 16);
 
 struct PVRPaletteHeader //WARNING: structure is only a guess from looking at the output of PVRConv!!
 {
-    unsigned char PVPL[4];
-    unsigned long int nPaletteDataSize;
-    unsigned long int nType;
-    unsigned short int nUnknown;
-    unsigned short int nPaletteEntryCount;
+    uint8_t PVPL[4];
+    uint32_t nPaletteDataSize;
+    uint32_t nType;
+    uint16_t nUnknown;
+    uint16_t nPaletteEntryCount;
 };
-
+static_assert((sizeof (struct PVRPaletteHeader)) == 16);
 
 extern bool SavePVR( const char* pszFilename, MMRGBA &mmrgba, SaveOptions* pSaveOptions );
 extern bool LoadPVR( const char* pszFilename, MMRGBA &mmrgba, unsigned long int dwFlags );

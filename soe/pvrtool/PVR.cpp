@@ -544,7 +544,7 @@ bool LoadPVR( const char* pszFilename, MMRGBA& mmrgba, unsigned long int dwFlags
 
 
     //set description
-    char szGBIX[16]; if( pGBIX ) sprintf( szGBIX, "%ld", pGBIX->nGlobalIndex ); else strcpy( szGBIX, "none" );
+    char szGBIX[16]; if( pGBIX ) sprintf( szGBIX, "%d", pGBIX->nGlobalIndex ); else strcpy( szGBIX, "none" );
     sprintf( mmrgba.szDescription, "PVR texture %dx%d.\nGlobal Index: %s.\nColour Format: ", mmrgba.nWidth, mmrgba.nHeight, szGBIX );
     switch( pHeader->nTextureType & 0xFF )
     {

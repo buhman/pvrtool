@@ -571,8 +571,9 @@ bool CCommandLineProcessor::ProcessAllFiles( FILEPROCESSINGFUNC pfnProcessFile )
             {
                 //build this filename in full
                 char szFilename[MAX_PATH+1];
-                strcpy( szFilename, szPath );
-                strcat( szFilename, finddata.name );
+                //strcpy( szFilename, szPath );
+                //strcat( szFilename, finddata.name );
+		strcpy( szFilename, finddata.name );
 
                 //process this file
                 if( pfnProcessFile( szFilename ) == false )
