@@ -2,6 +2,7 @@
 
 #include "strupr.h"
 
+#ifndef _WIN32
 static char upcase(const char c)
 {
   switch (c) {
@@ -41,3 +42,4 @@ void strupr(char * s)
     s[i] = upcase(s[i]);
   }
 }
+#endif

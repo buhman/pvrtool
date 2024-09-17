@@ -3,6 +3,7 @@
 
 #include "findfirst.h"
 
+#ifndef _WIN32
 static_assert((sizeof (long)) >= (sizeof (ptrdiff_t)));
 
 long _findfirst(const char * pattern, _finddata_t * finddata)
@@ -34,3 +35,4 @@ void _findclose(long finddata_n)
   _finddata_t * finddata = (_finddata_t *)finddata_n;
   globfree(&finddata->pglob);
 }
+#endif // _WIN32

@@ -1,5 +1,8 @@
 #pragma once
 
+#ifdef _WIN32
+#include <io.h>
+#else
 #include <glob.h>
 
 #ifdef __cplusplus
@@ -19,3 +22,4 @@ void _findclose(long finddata_n);
 #ifdef __cplusplus
 }
 #endif
+#endif // _WIN32
