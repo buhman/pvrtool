@@ -11,13 +11,9 @@
 
 #include "VQImage.h"
 
-#ifndef MyDllExport
-    extern "C" {
-    //#define MyDllExport __declspec(dllimport)
-    #include "VQDll/vqdll.h"
-    };
-#endif
-
+extern "C" {
+#include "vqdll.h"
+}
 
 class CVQCompressor
 {

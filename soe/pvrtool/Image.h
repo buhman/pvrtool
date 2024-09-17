@@ -9,8 +9,7 @@
 #pragma once
 #endif // _MSC_VER > 1000
 
-#include <Windows.h>
-#include "picture.h"
+#include "Picture.h"
 
 class CImage  
 {

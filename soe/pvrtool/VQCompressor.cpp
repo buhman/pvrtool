@@ -9,6 +9,7 @@
 **************************************************/
 
 #include <stdio.h>
+#include <string.h>
 #include "Util.h"
 #include "VQCompressor.h"
 
@@ -74,7 +75,7 @@ CVQImage* CVQCompressor::GenerateVQ( CImage* pImage )
 //
         default:
             ShowErrorMessage( "Error: Image dimension must be a power of 2 between 8 and 1024" );
-            return false;
+            return NULL;
     }
 
     //convert the image to 32 bit
