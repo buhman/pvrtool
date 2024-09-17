@@ -1,7 +1,7 @@
 #ifndef _RESAMPLE_H_
 #define _RESAMPLE_H_
 
-#include "picture.h"
+#include "Picture.h"
 
 //texture resampling functions
 extern void ResampleAlpha( unsigned char* pRes, unsigned char* pSrc, int nCurWidth, int nCurHeight );
