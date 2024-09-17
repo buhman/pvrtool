@@ -8,9 +8,9 @@
 
 
 **************************************************/
-#include <windows.h>
 #include <stdio.h>
 #include <string.h>
+#include "stricmp.h"
 #include "Picture.h"
 #include "Resample.h"
 #include "Util.h"
@@ -18,7 +18,7 @@
 #include "VQF.h"
 #include "C.h"
 #include "PIC.h"
-#include "paintlib/paintlib.h"
+//#include "paintlib/paintlib.h"
 
 const char* g_pszSupportedFormats[] =
 {
@@ -44,12 +44,13 @@ const char* g_pszSupportedFormats[] =
 
 
 //central picture decoder (not thread safe)
-CAnyPicDecoder paintlib;
+//CAnyPicDecoder paintlib;
 
 //////////////////////////////////////////////////////////////////////
 // Loads the given file into the mmrgba object using the paintlib library
 //////////////////////////////////////////////////////////////////////
-bool LoadPictureUsingPaintLib( const char* pszFilename, MMRGBA& mmrgba, unsigned long int dwFlags /*0*/ )
+/*
+bool LoadPictureUsingPaintLib( const char* pszFilename, MMRGBA& mmrgba, unsigned long int dwFlags )
 {
     //load image
     CAnyBmp bmp;
@@ -121,7 +122,7 @@ bool LoadPictureUsingPaintLib( const char* pszFilename, MMRGBA& mmrgba, unsigned
     sprintf( mmrgba.szDescription, "%s file %dx%d %dbpp", GetFileExtension(pszFilename), mmrgba.nWidth, mmrgba.nHeight, bmp.GetBitsPerPixel() );
     return true;
 }
-
+*/
 
 //////////////////////////////////////////////////////////////////////
 // Loads the given file into the mmrgba object
@@ -149,7 +150,7 @@ bool LoadPicture( const char* pszFilename, MMRGBA& mmrgba, unsigned long int dwF
     //FIXME: new formats go here...
 
     //see if the paintlib can handle it
-    if( LoadPictureUsingPaintLib( pszFilename, mmrgba, dwFlags ) ) return true;
+    //if( LoadPictureUsingPaintLib( pszFilename, mmrgba, dwFlags ) ) return true;
 
 
 
@@ -400,7 +401,7 @@ void MMRGBA::GenerateMipMaps()
         pPaletteIndices[0] = pPaletteIndicesImage;
 
         //generate mipmaps
-        for( i = 1; i < nMipMaps; i++ )
+        for( int i = 1; i < nMipMaps; i++ )
         {
             pPaletteIndices[i] = (unsigned char*)malloc( (nWidth >> i) * (nHeight >> i) );
             ResamplePalette( pPaletteIndices[i], pPaletteIndices[i-1], nWidth >> (i-1), nHeight >> (i-1), Palette );
@@ -422,7 +423,7 @@ void MMRGBA::GenerateMipMaps()
         pRGB[0] = pRGBImage;
 
         //generate mipmaps
-        for( i = 1; i < nMipMaps; i++ )
+        for( int i = 1; i < nMipMaps; i++ )
         {
             pRGB[i] = (unsigned char*)malloc( (nWidth >> i) * (nHeight >> i) * 3 );
             ResampleRGB( pRGB[i], pRGB[i-1], nWidth >> (i-1), nHeight >> (i-1) );
@@ -452,7 +453,7 @@ void MMRGBA::GenerateAlphaMipMaps()
     pAlpha[0] = pAlphaImage;
 
     //generate mipmaps
-    for( i = 1; i < nAlphaMipMaps; i++ )
+    for( int i = 1; i < nAlphaMipMaps; i++ )
     {
         int nTempWidth = nWidth >> i, nTempHeight = nHeight >> i;
         pAlpha[i] = (unsigned char*)malloc( (nWidth >> i) * (nHeight >> i) );
@@ -572,7 +573,7 @@ void MMRGBA::ReplaceWith( MMRGBA* other )
     *this = *other;
 
     //erase other one
-    ZeroMemory( other, sizeof(MMRGBA) );
+    *other = MMRGBA();
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -664,5 +665,3 @@ void MMRGBA::ConvertToPalettised(int nNewDepth)
 
     ShowErrorMessage( "This is not implemented yet: FIXME!" );
 }
-
-
