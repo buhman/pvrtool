@@ -27,7 +27,7 @@
 
 const char* szApplication = "PVR Texture Conversion Command Line Tool";
 const char* szVersion = "0.1.14 BETA";
-const char* szOtherInfo = "Sega Europe ( EDTS@soe.sega.co.uk )\nContains paintlib [copyright (c) 1996-1998 Ulrich von Zadow]";
+const char* szOtherInfo = "Sega Europe ( EDTS@soe.sega.co.uk )\nContains stb_image [public domain]";
 
 
 extern const char* g_pszSupportedFormats[];
