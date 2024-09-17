@@ -26,6 +26,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include "minmax.h"
 #include "Image.h"
 #include "Picture.h"
 #include "Util.h"
@@ -561,8 +562,10 @@ unsigned char* CImage::CreateAlphaFromRGB( unsigned char* pRGB, int nWidth, int 
 
     //convert the RGB data to greyscale [average the RGB values]
     int iA = 0, iRGB = 0;
-    for( int n = 0; n < nWidth*nHeight; n++ )
-        pAlpha[iA++] = ( pRGB[iRGB++] + pRGB[iRGB++] + pRGB[iRGB++] ) / 3;
+    for( int n = 0; n < nWidth*nHeight; n++ ) {
+        pAlpha[iA++] = ( pRGB[iRGB+0] + pRGB[iRGB+1] + pRGB[iRGB+2] ) / 3;
+        iRGB += 3;
+    }
 
     //return it
     return pAlpha;
@@ -620,7 +623,7 @@ bool CImage::Load(const char *pszFilename, bool bLoadToAlphaChannel /*false*/ )
                 //replace current mmrgba's alpha channel with this one
                 m_mmrgba.AddAlpha();
                 newmmrgba.ConvertTo32Bit(); //cheap hack - we convert it to 32 bit before we greyscale - rather a waste of time... could have dedicated method for palettised
-                for( int iMipMap = 0; iMipMap < min(newmmrgba.nMipMaps,m_mmrgba.nMipMaps); iMipMap++ )
+                for( int iMipMap = 0; iMipMap < __min(newmmrgba.nMipMaps,m_mmrgba.nMipMaps); iMipMap++ )
                 {
                     m_mmrgba.pAlpha[iMipMap] = CreateAlphaFromRGB( newmmrgba.pRGB[iMipMap], newmmrgba.nWidth >> iMipMap, newmmrgba.nHeight >> iMipMap );
                 }
@@ -795,7 +798,7 @@ void CImage::MakeSquare()
     if( m_mmrgba.nWidth != m_mmrgba.nHeight )
     {
         //get largest dimension
-        int nDimension = max( m_mmrgba.nWidth, m_mmrgba.nHeight );
+        int nDimension = __max( m_mmrgba.nWidth, m_mmrgba.nHeight );
 
         //enlarge the image
         Enlarge( nDimension, nDimension );
@@ -817,7 +820,7 @@ void CImage::Flip( bool bHorizontal, bool bVertical )
     bool bAlpha = HasAlpha();
 
     //allocate a work area
-    unsigned char* pWorkarea = (unsigned char*)malloc( max(m_mmrgba.nWidth, m_mmrgba.nHeight) * 3 );
+    unsigned char* pWorkarea = (unsigned char*)malloc( __max(m_mmrgba.nWidth, m_mmrgba.nHeight) * 3 );
 
     //do all mipmap levels
     for( int iMipmap = 0; iMipmap < GetNumMipMaps(); iMipmap++ )
