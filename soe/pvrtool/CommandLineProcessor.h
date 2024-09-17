@@ -78,10 +78,7 @@ protected:
     CommandLineOptionList* m_pCommandLineOptions;
     CommandLineOptionList* m_pCommandLineOptionListEnd;
 
-#ifdef _DEBUG
-	bool IsValid( CommandLineOption* pNewOption );
-#endif
-
+    bool IsValid( CommandLineOption* pNewOption );
 
 
     //list of file specs
