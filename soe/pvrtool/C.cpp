@@ -12,6 +12,8 @@
 
 **************************************************/
 #include <stdio.h>
+#include <string.h>
+#include "strupr.h"
 #include "C.h"
 #include "Util.h"
 #include "PVR.h"
@@ -46,10 +48,12 @@ void WriteBytes( FILE* file, unsigned char* pData, int nCount )
 //////////////////////////////////////////////////////////////////////
 // Writes a C file from the given in-memory PVR file
 //////////////////////////////////////////////////////////////////////
-bool WriteCFromPVR( const char* pszFilename, unsigned char* pPVR, int nSize )
+bool WriteCFromPVR( const char* _pszFilename, unsigned char* pPVR, int nSize )
 {
     unsigned char* pPtr = pPVR;
     
+    char pszFilename[strlen(_pszFilename) + 1];
+    strcpy(pszFilename, _pszFilename);
     //open output file
     FILE* file = fopen( pszFilename, "wt" );
     if( file == NULL ) { free(pPVR); return ReturnError( "could not open file for output: ", pszFilename ); };
@@ -57,7 +61,7 @@ bool WriteCFromPVR( const char* pszFilename, unsigned char* pPVR, int nSize )
     //get a pointer to the filename without the extension or path
     char* pszTmp = strrchr( pszFilename, '/' );
     if( pszTmp == NULL ) pszTmp = strrchr( pszFilename, '\\' );
-    if( pszTmp == NULL ) pszTmp = (char*)pszFilename; else pszTmp++;
+    if( pszTmp == NULL ) pszTmp = pszFilename; else pszTmp++;
     char* pszPathlessFilename = pszTmp;
 
     //write out file info etc.
@@ -163,4 +167,3 @@ bool SaveC( const char* pszFilename, MMRGBA &mmrgba, SaveOptions* pSaveOptions )
     free( pPVR );
     return bResult;
 }
-
