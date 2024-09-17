@@ -16,6 +16,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include "max_path.h"
 #include "stricmp.h"
 #include "findfirst.h"
 #include "Util.h"
@@ -553,7 +554,6 @@ bool CCommandLineProcessor::ProcessAllFiles( FILEPROCESSINGFUNC pfnProcessFile )
     for( StringList* pFileSpec = m_pFileSpecs; pFileSpec != NULL; pFileSpec = pFileSpec->next )
     {
         //build the current path
-        #define MAX_PATH 260
         char szPath[MAX_PATH+1]; 
         strcpy( szPath, pFileSpec->pszString );
         char* pszPathEnd = (char*)GetFileNameNoPath( szPath );

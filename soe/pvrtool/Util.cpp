@@ -6,10 +6,12 @@
 
 **************************************************/
 
-#include <windows.h>
 #include <stdio.h>
 #include <stdarg.h>
-#include "util.h"
+#include <string.h>
+#include <stdlib.h>
+#include "max_path.h"
+#include "Util.h"
 
 #ifdef _WINDOWS
 #include <commctrl.h>
@@ -38,7 +40,7 @@ unsigned char Limit255( int v )
 {
     if( v <= 0 ) return 0;
     else if( v >= 255 ) return 255;
-    else return unsigned char(v);
+    else return (unsigned char)(v);
 }
 
 
@@ -211,7 +213,7 @@ const char* GetFileNameNoPath( const char* pszFilename )
 {
     if( pszFilename == NULL || *pszFilename == '\0' ) return NULL;
     const char* pszTemp = strrchr(pszFilename,'\\' );
-    if( pszTemp == NULL ) pszTemp = strrchr(pszFilename, '//');
+    if( pszTemp == NULL ) pszTemp = strrchr(pszFilename, '/');
     if( pszTemp ) return ++pszTemp; else return pszFilename;
 }
 
