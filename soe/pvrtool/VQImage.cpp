@@ -9,6 +9,7 @@
 **************************************************/
 #include <stdio.h>
 #include <string.h>
+#include "stricmp.h"
 #include "Picture.h"
 #include "Util.h"
 #include "VQImage.h"
@@ -253,25 +254,25 @@ bool CVQImage::SaveAsVQF( const char* pszFilename )
     
     switch( m_nVQWidth )
     {
-        case 8:     header.nTextureSize = 4;
-        case 16:    header.nTextureSize = 5;
-        case 32:    header.nTextureSize = 0;
-        case 64:    header.nTextureSize = 1;
-        case 128:   header.nTextureSize = 2;
-        case 256:   header.nTextureSize = 3;
-        case 512:   header.nTextureSize = 6;
-        case 1024:  header.nTextureSize = 7;
+        case 8:     header.nTextureSize = 4; break;
+        case 16:    header.nTextureSize = 5; break;
+        case 32:    header.nTextureSize = 0; break;
+        case 64:    header.nTextureSize = 1; break;
+        case 128:   header.nTextureSize = 2; break;
+        case 256:   header.nTextureSize = 3; break;
+        case 512:   header.nTextureSize = 6; break;
+        case 1024:  header.nTextureSize = 7; break;
         default:    return false;
     }
 
     switch( m_nVQCodebookSize )
     {
-        case 8:     header.nCodeBookSize = 0;
-        case 16:    header.nCodeBookSize = 1;
-        case 32:    header.nCodeBookSize = 2;
-        case 64:    header.nCodeBookSize = 3;
-        case 128:   header.nCodeBookSize = 4;
-        case 256:   header.nCodeBookSize = 5;
+        case 8:     header.nCodeBookSize = 0; break;
+        case 16:    header.nCodeBookSize = 1; break;
+        case 32:    header.nCodeBookSize = 2; break;
+        case 64:    header.nCodeBookSize = 3; break;
+        case 128:   header.nCodeBookSize = 4; break;
+        case 256:   header.nCodeBookSize = 5; break;
         default:    return false;
     }
 
@@ -280,7 +281,7 @@ bool CVQImage::SaveAsVQF( const char* pszFilename )
     if( file == NULL ) return false;
 
     //dump the header and vqf into it
-    if( (int)fwrite( &header, 1, sizeof(header), file ) < sizeof(header) || (int)fwrite( m_pVQ, 1, m_nVQSize, file ) < m_nVQSize )
+    if( fwrite( &header, 1, sizeof(header), file ) < sizeof(header) || fwrite( m_pVQ, 1, m_nVQSize, file ) < (size_t)m_nVQSize )
     {
         fclose( file );
         return false;
@@ -354,7 +355,7 @@ bool CVQImage::SaveAsPVR(const char *pszFilename)
     }
     
     //write out image data
-    if( (int)fwrite( m_pVQ, 1, m_nVQSize, file ) < m_nVQSize )
+    if( fwrite( m_pVQ, 1, m_nVQSize, file ) < (size_t)m_nVQSize )
     {
         fclose(file);
         return false;
@@ -393,5 +394,3 @@ bool CVQImage::SaveAsC( const char* pszFilename )
     free( pPVR );
     return bResult;
 }
-
-
