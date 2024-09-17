@@ -170,7 +170,7 @@ bool CCommandLineProcessor::RegisterCommandLineOption( const char* pszLongSwitch
 }
 
 
-bool CCommandLineProcessor::RegisterCommandLineOption( const char* pszLongSwitch, const char* pszShortSwitch, int nCommandLineOptions, const char* pszDescription, int nFlags, char** ppszValue, bool* pbFound /*NULL*/ )
+bool CCommandLineProcessor::RegisterCommandLineOption( const char* pszLongSwitch, const char* pszShortSwitch, int nCommandLineOptions, const char* pszDescription, int nFlags, const char ** ppszValue, bool* pbFound /*NULL*/ )
 {
     //build command line option structure
     CommandLineOption Option;
@@ -273,7 +273,7 @@ void CCommandLineProcessor::DisplayCommandLineOptions()
                 {
                     if( pList->Option.pbValue )   printf( " %s", pList->Option.pbValue[i] ? "YES" : "NO" );
                     if( pList->Option.pnValue )   printf( " %d", pList->Option.pnValue[i] );
-                    if( pList->Option.ppszValue ) printf( " %s", (char*)pList->Option.ppszValue );
+                    if( pList->Option.ppszValue ) printf( " %s", *pList->Option.ppszValue );
                     if( pList->Option.pfValue )   printf( " %.03f", pList->Option.pfValue[i] );
                 }
                 printf( "]");
@@ -485,7 +485,7 @@ bool CCommandLineProcessor::ProcessResponseFile(const char *pszFilename)
                             //if the value will be used as a string, create a duplicate
                             //(note: this is needed because unlike the argv[] strings, this
                             //       array is deleted when we leave the function)
-                            if( pOption->ppszValue[i] )
+                            if( pOption->ppszValue )
                             {
                                 //add a new item to the string list
                                 StringList* pNew = new StringList;
@@ -655,8 +655,9 @@ void CCommandLineProcessor::CommandLineOption::SetOption( int i, char* pszOption
     if( puValue )   puValue[i] =   atol( pszOption );
     if( ppszValue )
     {
-        ppszValue[i] = new char[ strlen(pszOption) + 1];
-        strcpy( ppszValue[i], pszOption );
+        char * value = new char[ strlen(pszOption) + 1];
+        strcpy( value, pszOption );
+	*ppszValue = value;
     }
     if( pfValue )   pfValue[i] =   (float)atof( pszOption );
 }

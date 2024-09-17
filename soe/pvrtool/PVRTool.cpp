@@ -36,10 +36,10 @@ extern const char* g_pszSupportedFormats[];
 //////////////////////////////////////////////////////////////////////
 // Globals
 //////////////////////////////////////////////////////////////////////
-char g_pszAlphaFilename[MAX_PATH] = "";
-char g_pszAlphaPrefix[MAX_PATH] = "";
-char g_pszOutputExtension[MAX_PATH] = "PVR";
-char g_pszOutputPath[MAX_PATH] = "";
+const char * g_pszAlphaFilename;
+const char * g_pszAlphaPrefix;
+const char * g_pszOutputExtension;
+const char * g_pszOutputPath;
 CImage g_Image;
 CVQCompressor g_VQCompressor;
 
@@ -369,7 +369,13 @@ int main( int argc, char* argv[] )
 
     /* initialise the command line processor */
     bool bShowHelp = false, bShowExamples = false, bQuiet = false, bTimeTask = false, bShowParameters = false, bReverseAlpha = false;
-    const char* pszColourFormat = "SMART";
+    const char * pszColourFormat;
+    pszColourFormat = "SMART";
+    g_pszAlphaFilename = "";
+    g_pszAlphaPrefix = "";
+    g_pszOutputExtension = "PVR";
+    g_pszOutputPath = "";
+
     int nVQDither = 0, nVQWeighting = 0;
 
     //add all command line switches to the command line processor
@@ -380,19 +386,19 @@ int main( int argc, char* argv[] )
     CommandLine.RegisterCommandLineOption( "TIMETASK",       "TT", 0, "display the time taken to complete the task",             CLF_NONE,    &bTimeTask );
     CommandLine.AddGap();
 
-    CommandLine.RegisterCommandLineOption( "OUTPATH",        "OP", 1, "[path] output path",                                      CLF_NONE,    (char**)&g_pszOutputPath );
-    CommandLine.RegisterCommandLineOption( "OUTFILE",        "OF", 1, "[extension] output extension: PVR VQF C",                 CLF_SHOWDEF, (char**)&g_pszOutputExtension );
+    CommandLine.RegisterCommandLineOption( "OUTPATH",        "OP", 1, "[path] output path",                                      CLF_NONE,    &g_pszOutputPath );
+    CommandLine.RegisterCommandLineOption( "OUTFILE",        "OF", 1, "[extension] output extension: PVR VQF C",                 CLF_SHOWDEF, &g_pszOutputExtension );
     CommandLine.AddGap();
 
     CommandLine.RegisterCommandLineOption( "TWIDDLE",        "TW", 0, "twiddle the surface",                                     CLF_NONE,    &g_SaveOptions.bTwiddled );
     CommandLine.RegisterCommandLineOption( "MIPMAP",         "MM", 0, "generate/save mipmaps",                                   CLF_NONE,    &g_SaveOptions.bMipmaps );
-    CommandLine.RegisterCommandLineOption( "COLOURFORMAT",   "CF", 1, "[format] SMART 4444 1555 565 555 SMARTYUV YUV422 8888",   CLF_SHOWDEF, (char**)&pszColourFormat );
+    CommandLine.RegisterCommandLineOption( "COLOURFORMAT",   "CF", 1, "[format] SMART 4444 1555 565 555 SMARTYUV YUV422 8888",   CLF_SHOWDEF, &pszColourFormat );
     CommandLine.RegisterCommandLineOption( "PALETTEDEPTH",   "PD", 1, "[n] 0 = no palette (default), 4 = 4bpp, 8 = 8bpp",        CLF_NONE,    &g_SaveOptions.nPaletteDepth );
     CommandLine.RegisterCommandLineOption( "GBIX",           "GI", 1, "[n] initial global index. Incremented for each file",     CLF_NONE,    &g_nGlobalIndex, &g_bEnableGlobalIndex );
     CommandLine.AddGap();
 
-    CommandLine.RegisterCommandLineOption( "ALPHAPREFIX",    "AP", 1, "[prefix] load alpha from file with this prefix",          CLF_NONE,    (char**)&g_pszAlphaPrefix );
-    CommandLine.RegisterCommandLineOption( "ALPHAFILE",      "AF", 1, "[file] load alpha channel from this file instead",        CLF_NONE,    (char**)&g_pszAlphaFilename );
+    CommandLine.RegisterCommandLineOption( "ALPHAPREFIX",    "AP", 1, "[prefix] load alpha from file with this prefix",          CLF_NONE,    &g_pszAlphaPrefix );
+    CommandLine.RegisterCommandLineOption( "ALPHAFILE",      "AF", 1, "[file] load alpha channel from this file instead",        CLF_NONE,    &g_pszAlphaFilename );
     CommandLine.RegisterCommandLineOption( "INVERSEALPHA",   "IA", 0, "inverse alpha so 0xFF = transparent",                     CLF_NONE,    &bReverseAlpha );
     CommandLine.RegisterCommandLineOption( "PADEND",         "PE", 0, "pads the end of a stride texture: eg 640x480->1024x512",  CLF_NONE,    &g_SaveOptions.bPad );
     CommandLine.RegisterCommandLineOption( "RESIZEPOW2",     "P2", 0, "resizes the image so width & height are powers of 2",     CLF_NONE,    &g_bEnlargeToPow2 );

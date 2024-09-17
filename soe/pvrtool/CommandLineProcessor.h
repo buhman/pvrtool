@@ -27,7 +27,7 @@ public:
     bool RegisterCommandLineOption( const char* pszLongSwitch, const char* pszShortSwitch, int nCommandLineOptions, const char* pszDescription, int nFlags, int* pnValue,               bool* pbFound = NULL  );
     bool RegisterCommandLineOption( const char* pszLongSwitch, const char* pszShortSwitch, int nCommandLineOptions, const char* pszDescription, int nFlags, unsigned long int* puValue, bool* pbFound = NULL  );
     bool RegisterCommandLineOption( const char* pszLongSwitch, const char* pszShortSwitch, int nCommandLineOptions, const char* pszDescription, int nFlags, float* pfValue,             bool* pbFound = NULL  );
-    bool RegisterCommandLineOption( const char* pszLongSwitch, const char* pszShortSwitch, int nCommandLineOptions, const char* pszDescription, int nFlags, char** ppszValue,           bool* pbFound = NULL  );
+    bool RegisterCommandLineOption( const char* pszLongSwitch, const char* pszShortSwitch, int nCommandLineOptions, const char* pszDescription, int nFlags, const char ** ppszValue,           bool* pbFound = NULL  );
     void AddGap();
 
     bool ParseCommandLine();
@@ -54,7 +54,7 @@ protected:
         bool* pbFound;
 
         bool* pbValue;
-        char** ppszValue;
+        const char ** ppszValue;
         int* pnValue;
         unsigned long int* puValue;
         float* pfValue;
