@@ -68,7 +68,7 @@ bool WriteCFromPVR( const char* _pszFilename, unsigned char* pPVR, int nSize )
     fprintf( file, "/********************\nPVR %s\n********************/\n\n", pszPathlessFilename );
 
     //get the filename without a path or extension
-    char szRawFileName[32] = "";
+    char szRawFileName[33] = "";
     strncpy( szRawFileName, pszPathlessFilename, 32 );
     pszTmp = strrchr( szRawFileName, '.' );
     if( pszTmp ) *pszTmp = '\0';

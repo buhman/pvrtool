@@ -1,16 +1,18 @@
 ROOT_DIR := $(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
 
 CSTD = -std=c2x
-CFLAGS = -Og -g -gdwarf -Wall -Wextra -Werror -Wfatal-errors -fstack-protector-strong
+CFLAGS += -Og -g -gdwarf -Wall -Wextra -Werror -Wfatal-errors -fstack-protector-strong
 CFLAGS += -Wno-error=unused-parameter
 CFLAGS += -Wno-error=unused-variable
 CFLAGS += -Wno-error=unused-but-set-variable
 CFLAGS += -Wno-error=unused-result
+CFLAGS += -Wno-error=strict-aliasing
+CFLAGS += -Wno-error=stringop-overflow
 CFLAGS += -DDEBUG
 CFLAGS += -I$(ROOT_DIR) -I$(ROOT_DIR)/it/vqdll
 CXXSTD = -std=c++23
-CXXFLAGS =
-
+CXXFLAGS +=
+LDFLAGS += -static
 
 OBJ = \
 	soe/pvrtool/C.o \
@@ -37,7 +39,7 @@ OBJ = \
 all: pvrtool
 
 pvrtool: $(OBJ)
-	$(CXX) $^ -o $@
+	$(CXX) $(LDFLAGS) $^ -o $@
 
 %.o: %.cpp
 	$(CXX) $(CXXSTD) $(CFLAGS) $(CXXFLAGS) -c $< -o $@
