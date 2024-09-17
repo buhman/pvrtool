@@ -10,7 +10,7 @@
 
 #include <stdio.h>
 #include <memory.h>
-#include "pic.h"
+#include "PIC.h"
 #include "Image.h"
 #include "Util.h"
 
@@ -74,7 +74,7 @@ bool LoadPIC( const char* pszFilename, MMRGBA &mmrgba, unsigned long int dwFlags
     /* decompress */
 	for( int y = 0; y < pHeader->nHeight; y++ )
 	{
-		for( iChannel = 0; iChannel < nChannels; iChannel++ )
+		for( int iChannel = 0; iChannel < nChannels; iChannel++ )
 		{
             if( pChannels[iChannel].type & PIC_CHANNELTYPE_MIXED_RUN_LENGTH )
 			{
@@ -90,7 +90,10 @@ bool LoadPIC( const char* pszFilename, MMRGBA &mmrgba, unsigned long int dwFlags
                             if( nChannel & PIC_CHANNELCODE_RED )    mmrgba.pRGB[0][ ((x + (y*pHeader->nWidth)) * 3)+2 ] = *pPtr++;
                             if( nChannel & PIC_CHANNELCODE_GREEN )  mmrgba.pRGB[0][ ((x + (y*pHeader->nWidth)) * 3)+1 ] = *pPtr++;
                             if( nChannel & PIC_CHANNELCODE_BLUE )   mmrgba.pRGB[0][ ((x + (y*pHeader->nWidth)) * 3)   ] = *pPtr++;
-                            if( nChannel & PIC_CHANNELCODE_ALPHA )  if( mmrgba.pAlpha ) mmrgba.pAlpha[0][   x + (y*pHeader->nWidth) ] = *pPtr++; else pPtr++;
+                            if( nChannel & PIC_CHANNELCODE_ALPHA ) {
+                              if( mmrgba.pAlpha ) mmrgba.pAlpha[0][   x + (y*pHeader->nWidth) ] = *pPtr++;
+                              else pPtr++;
+                            }
                             x++;
                         }
                     }
@@ -116,7 +119,10 @@ bool LoadPIC( const char* pszFilename, MMRGBA &mmrgba, unsigned long int dwFlags
                             if( nChannel & PIC_CHANNELCODE_RED )    mmrgba.pRGB[0][ ((x + (y*pHeader->nWidth)) * 3)+2 ] = pPtr[iOff++];
                             if( nChannel & PIC_CHANNELCODE_GREEN )  mmrgba.pRGB[0][ ((x + (y*pHeader->nWidth)) * 3)+1 ] = pPtr[iOff++];
                             if( nChannel & PIC_CHANNELCODE_BLUE )   mmrgba.pRGB[0][ ((x + (y*pHeader->nWidth)) * 3)   ] = pPtr[iOff++];
-                            if( nChannel & PIC_CHANNELCODE_ALPHA )  if( mmrgba.pAlpha ) mmrgba.pAlpha[0][   x + (y*pHeader->nWidth) ] = pPtr[iOff++]; else iOff++;
+                            if( nChannel & PIC_CHANNELCODE_ALPHA )  {
+                              if( mmrgba.pAlpha ) mmrgba.pAlpha[0][   x + (y*pHeader->nWidth) ] = pPtr[iOff++];
+                              else iOff++;
+                            }
                             x++;
                         }
                         pPtr += iOff;
@@ -131,7 +137,10 @@ bool LoadPIC( const char* pszFilename, MMRGBA &mmrgba, unsigned long int dwFlags
                     if( nChannel & PIC_CHANNELCODE_RED )    mmrgba.pRGB[0][ ((x + (y*pHeader->nWidth)) * 3)+2 ] = *pPtr++;
                     if( nChannel & PIC_CHANNELCODE_GREEN )  mmrgba.pRGB[0][ ((x + (y*pHeader->nWidth)) * 3)+1 ] = *pPtr++;
                     if( nChannel & PIC_CHANNELCODE_BLUE )   mmrgba.pRGB[0][ ((x + (y*pHeader->nWidth)) * 3)   ] = *pPtr++;
-                    if( nChannel & PIC_CHANNELCODE_ALPHA )  if( mmrgba.pAlpha ) mmrgba.pAlpha[0][   x + (y*pHeader->nWidth) ] = *pPtr++; else pPtr++;
+                    if( nChannel & PIC_CHANNELCODE_ALPHA )  {
+                      if( mmrgba.pAlpha ) mmrgba.pAlpha[0][   x + (y*pHeader->nWidth) ] = *pPtr++;
+                      else pPtr++;
+                    }
 				} 
 			}
 		}
@@ -147,4 +156,3 @@ bool LoadPIC( const char* pszFilename, MMRGBA &mmrgba, unsigned long int dwFlags
 
 
 #pragma pack( pop )
-
