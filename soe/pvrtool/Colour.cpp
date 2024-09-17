@@ -10,6 +10,8 @@
 
 **************************************************/
 
+#include <assert.h>
+
 #include "Util.h"
 #include "Colour.h"
 
@@ -63,6 +65,7 @@ void ComputeTexel( int x, int y, unsigned short int* texel, unsigned char a, uns
 			}
 			break;
         }
+        default: assert(false);
     }
 }
 
@@ -135,7 +138,9 @@ void UnpackTexel( int x, int y, unsigned short int texel, unsigned char* a, unsi
                 *g =  Limit255(int(Y1 - 0.6875*(V-128)-0.34375*(U-128)));
                 *b =  Limit255(int(Y1 + 1.71875*(U-128)));
             }
+            break;
         }
+        default: assert(false);
     }
 }
 

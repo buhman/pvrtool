@@ -1,6 +1,8 @@
 #ifndef _UTIL_H
 #define _UTIL_H
 
+#include <stddef.h>
+
 //reference some of the GUI components if this is the GUI version
 #ifdef _WINDOWS
     extern const char* szWindowTitle;
