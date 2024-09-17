@@ -16,7 +16,8 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <io.h>
+#include "stricmp.h"
+#include "findfirst.h"
 #include "Util.h"
 #include "CommandLineProcessor.h"
 
@@ -374,6 +375,10 @@ bool CCommandLineProcessor::ParseCommandLine()
             case CommandLine_Response:
                 if( !ProcessResponseFile( &m_argv[argi][1] ) ) return false;
                 break;
+            case CommandLine_Error:
+                sprintf( m_szErrorMessage, "null character %d", argi );
+                return false;
+                break;
         }
     }
 
@@ -514,6 +519,9 @@ bool CCommandLineProcessor::ProcessResponseFile(const char *pszFilename)
                 sprintf( m_szErrorMessage, "@%s: %s - can't have response file in response file", pszFilename, pszWord );
                 free( pBuffer ); 
                 return false;
+            case CommandLine_Error:
+                sprintf( m_szErrorMessage, "null character");
+                return false;
         }
     }
 
@@ -545,6 +553,7 @@ bool CCommandLineProcessor::ProcessAllFiles( FILEPROCESSINGFUNC pfnProcessFile )
     for( StringList* pFileSpec = m_pFileSpecs; pFileSpec != NULL; pFileSpec = pFileSpec->next )
     {
         //build the current path
+        #define MAX_PATH 260
         char szPath[MAX_PATH+1]; 
         strcpy( szPath, pFileSpec->pszString );
         char* pszPathEnd = (char*)GetFileNameNoPath( szPath );
