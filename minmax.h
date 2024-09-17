@@ -1,12 +1,11 @@
 #pragma once
 
-#ifndef __min
+#ifdef __min
+#undef __min
+#endif
 #define __min(a,b) (((a) < (b)) ? (a) : (b))
-#endif
 
-#ifndef __max
+#ifdef __max
+#undef __max
+#endif
 #define __max(a,b) (((a) > (b)) ? (a) : (b))
-#endif
-
-#define __max max
-#define __min min

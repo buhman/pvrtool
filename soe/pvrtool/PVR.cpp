@@ -26,8 +26,11 @@
 **************************************************/
 #pragma pack( push, 1 )
 
+#include <assert.h>
 #include <stdio.h>
 #include <string.h>
+#include "minmax.h"
+#include "max_path.h"
 #include "PVR.h"
 #include "Picture.h"
 #include "Util.h"
@@ -48,7 +51,7 @@ void* LoadPVRPalette( const char* pszFilename, unsigned short int nPaletteDepth,
 
     //read & check the file header
     PVRPaletteHeader header;
-    if( (int)fread( &header, 1, sizeof(header), file ) < sizeof(header) ) { fclose(file); return NULL; }
+    if( fread( &header, 1, sizeof(header), file ) < sizeof(header) ) { fclose(file); return NULL; }
     if( memcmp( header.PVPL, "PVPL", 4 ) != 0 ) { fclose(file); return NULL; }
 
     //process the the palette header
@@ -65,7 +68,7 @@ void* LoadPVRPalette( const char* pszFilename, unsigned short int nPaletteDepth,
     //determine the size that the palette must be to match the requested colour depth
     int nRequestedPaletteSize = (1 << nPaletteDepth) * nPaletteEntrySize;
     int nActualPaletteSize = header.nPaletteEntryCount * nPaletteEntrySize;
-    int nBufferSize = max( nActualPaletteSize, nRequestedPaletteSize );
+    int nBufferSize = __max( nActualPaletteSize, nRequestedPaletteSize );
    
     //allocate a buffer to hold the biggest of the file and requested palettes, and set it to black
     unsigned char* pBuffer = (unsigned char*)malloc( nBufferSize );
@@ -100,6 +103,7 @@ bool SavePVRPalette( const char* pszFilename, unsigned short int nPaletteDepth, 
         case ICF_565:  header.nType = 1; break;
         case ICF_4444: header.nType = 2; break;
         case ICF_8888: header.nType = 6; nPaletteEntrySize = 4; break;
+        default: assert(false);
     }
     header.nPaletteEntryCount = (1 << nPaletteDepth);
     header.nPaletteDataSize = (header.nPaletteEntryCount * nPaletteEntrySize) + 8;
@@ -139,6 +143,7 @@ bool SavePVRPalette( const char* pszFilename, unsigned short int nPaletteDepth, 
                 fwrite( &Pal16, 1, 2, file );
                 break;
             }
+            default: assert(false);
         }
     }
 
@@ -265,7 +270,7 @@ bool LoadPVR( const char* pszFilename, MMRGBA& mmrgba, unsigned long int dwFlags
             for( int i = 0; i < nPaletteSize; i++ )
             {
                 unsigned long int* pEntry = (unsigned long int*)pPalette;
-                unsigned char v = unsigned char((256.0 / double(nPaletteSize) ) * i);
+                unsigned char v = (unsigned char)((256.0 / double(nPaletteSize) ) * i);
                 pEntry[i] = MAKE_8888( g_nOpaqueAlpha, v, v, v );
             }
         }
@@ -539,7 +544,7 @@ bool LoadPVR( const char* pszFilename, MMRGBA& mmrgba, unsigned long int dwFlags
 
 
     //set description
-    char szGBIX[16]; if( pGBIX ) sprintf( szGBIX, "%d", pGBIX->nGlobalIndex ); else strcpy( szGBIX, "none" );
+    char szGBIX[16]; if( pGBIX ) sprintf( szGBIX, "%ld", pGBIX->nGlobalIndex ); else strcpy( szGBIX, "none" );
     sprintf( mmrgba.szDescription, "PVR texture %dx%d.\nGlobal Index: %s.\nColour Format: ", mmrgba.nWidth, mmrgba.nHeight, szGBIX );
     switch( pHeader->nTextureType & 0xFF )
     {
@@ -639,7 +644,7 @@ bool SavePVR( const char* pszFilename, MMRGBA &mmrgba, SaveOptions* pSaveOptions
             case ICF_4444:  header.nTextureType |= KM_TEXTURE_ARGB4444; break;
             case ICF_555:   header.nTextureType |= KM_TEXTURE_ARGB1555; break; 
             case ICF_1555:  header.nTextureType |= KM_TEXTURE_ARGB1555; break;
-            case ICF_8888:  DisplayStatusMessage( "Warning: 8888 is not supported for non-paletised images. Using 565", pszFilename ); //drop through...                            
+            case ICF_8888:  DisplayStatusMessage( "Warning: 8888 is not supported for non-paletised images. Using 565", pszFilename ); [[fallthrough]]; //drop through...
             default:
             case ICF_565:   header.nTextureType |= KM_TEXTURE_RGB565; break;
         }
@@ -887,7 +892,7 @@ bool SavePVR( const char* pszFilename, MMRGBA &mmrgba, SaveOptions* pSaveOptions
                 while( iWrite < iMax )
                 {
                     //get index
-                    unsigned char index = index = mmrgbasave.pPaletteIndices[iMipMap][iRead++];
+                    unsigned char index = mmrgbasave.pPaletteIndices[iMipMap][iRead++];
 
                     //calculate position and write computed texel
                     pFileBuffer[ CalcUntwiddledPos( x, y, mask, shift ) ] = index;
@@ -948,4 +953,3 @@ bool SavePVR( const char* pszFilename, MMRGBA &mmrgba, SaveOptions* pSaveOptions
 
 
 #pragma pack( pop )
-
