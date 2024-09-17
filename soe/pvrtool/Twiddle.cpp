@@ -10,6 +10,7 @@
 **************************************************/
 
 #include <stdlib.h>
+#include "minmax.h"
 
 #define TWIDDLE_TABLE_SIZE 1024
 unsigned long int g_nTwiddleTable[TWIDDLE_TABLE_SIZE];
@@ -70,6 +71,3 @@ unsigned long int CalcUntwiddledPos( unsigned long int x, unsigned long int y, u
     else
         return g_nTwiddleTable[ y & mask ]  |  g_nTwiddleTable[ x & mask ] << 1  |  (( (y|x) & ~mask ) << shift );
 }
-
-
-
