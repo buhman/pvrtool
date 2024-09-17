@@ -1,6 +1,6 @@
 /*************************************************
  Command Line Processing Helper Class
- 
+
    This class provides useful processing functions
    for the extraction of multiple-argument command
    line parameters as well as providing a facility
@@ -8,7 +8,7 @@
    line.
 
   To Do
-  
+
     * More testing...
 
 **************************************************/
@@ -170,7 +170,7 @@ bool CCommandLineProcessor::RegisterCommandLineOption( const char* pszLongSwitch
 }
 
 
-bool CCommandLineProcessor::RegisterCommandLineOption( const char* pszLongSwitch, const char* pszShortSwitch, int nCommandLineOptions, const char* pszDescription, int nFlags, const char** ppszValue, bool* pbFound /*NULL*/ )
+bool CCommandLineProcessor::RegisterCommandLineOption( const char* pszLongSwitch, const char* pszShortSwitch, int nCommandLineOptions, const char* pszDescription, int nFlags, char** ppszValue, bool* pbFound /*NULL*/ )
 {
     //build command line option structure
     CommandLineOption Option;
@@ -270,10 +270,10 @@ void CCommandLineProcessor::DisplayCommandLineOptions()
             {
                 printf( " [def:" );
                 for( int i = 0; i < pList->Option.nCommandLineOptions; i++ )
-                {           
+                {
                     if( pList->Option.pbValue )   printf( " %s", pList->Option.pbValue[i] ? "YES" : "NO" );
                     if( pList->Option.pnValue )   printf( " %d", pList->Option.pnValue[i] );
-                    if( pList->Option.ppszValue ) printf( " %s", pList->Option.ppszValue[i] );
+                    if( pList->Option.ppszValue ) printf( " %s", (char*)pList->Option.ppszValue );
                     if( pList->Option.pfValue )   printf( " %.03f", pList->Option.pfValue[i] );
                 }
                 printf( "]");
@@ -469,10 +469,10 @@ bool CCommandLineProcessor::ProcessResponseFile(const char *pszFilename)
                             if( !bEndOfBuffer ) while( *pPtr != '\0' && (*pPtr == ' ' || *pPtr == '\t' || *pPtr == '\r' || *pPtr == '\n' ) ) pPtr++;
 
                             //fail if we're at the end of the line and there should be more parameters
-                            if( *pPtr == '\0' || bEndOfBuffer ) 
+                            if( *pPtr == '\0' || bEndOfBuffer )
                             {
                                 sprintf( m_szErrorMessage, "@%s: %s - too few parameters", pszFilename, pszWord );
-                                free( pBuffer ); 
+                                free( pBuffer );
                                 return false;
                             }
 
@@ -497,7 +497,7 @@ bool CCommandLineProcessor::ProcessResponseFile(const char *pszFilename)
                                 //change the option pointer to the duplicated string
                                 pszOption = pNew->pszString;
                             }
-                            
+
                             //set the option
                             pOption->SetOption( i, pszOption );
 
@@ -510,7 +510,7 @@ bool CCommandLineProcessor::ProcessResponseFile(const char *pszFilename)
                 {
                     //we didn't find it - set the error message and return
                     sprintf( m_szErrorMessage, "@%s: %s - unknown option", pszFilename, pszWord  );
-                    free( pBuffer ); 
+                    free( pBuffer );
                     return false;
                 }
                 break;
@@ -518,7 +518,7 @@ bool CCommandLineProcessor::ProcessResponseFile(const char *pszFilename)
 
             case CommandLine_Response:
                 sprintf( m_szErrorMessage, "@%s: %s - can't have response file in response file", pszFilename, pszWord );
-                free( pBuffer ); 
+                free( pBuffer );
                 return false;
             case CommandLine_Error:
                 sprintf( m_szErrorMessage, "null character");
@@ -554,7 +554,7 @@ bool CCommandLineProcessor::ProcessAllFiles( FILEPROCESSINGFUNC pfnProcessFile )
     for( StringList* pFileSpec = m_pFileSpecs; pFileSpec != NULL; pFileSpec = pFileSpec->next )
     {
         //build the current path
-        char szPath[MAX_PATH+1]; 
+        char szPath[MAX_PATH+1];
         strcpy( szPath, pFileSpec->pszString );
         char* pszPathEnd = (char*)GetFileNameNoPath( szPath );
         if( pszPathEnd == NULL ) pszPathEnd = szPath;
@@ -566,7 +566,7 @@ bool CCommandLineProcessor::ProcessAllFiles( FILEPROCESSINGFUNC pfnProcessFile )
         if( hFind != -1 )
         {
             //process all matching files
-            do 
+            do
             {
                 //build this filename in full
                 char szFilename[MAX_PATH+1];

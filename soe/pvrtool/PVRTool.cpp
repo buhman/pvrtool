@@ -36,10 +36,10 @@ extern const char* g_pszSupportedFormats[];
 //////////////////////////////////////////////////////////////////////
 // Globals
 //////////////////////////////////////////////////////////////////////
-const char* g_pszAlphaFilename = "";
-const char* g_pszAlphaPrefix = "";
-const char* g_pszOutputExtension = "PVR";
-const char* g_pszOutputPath = "";
+char g_pszAlphaFilename[MAX_PATH] = "";
+char g_pszAlphaPrefix[MAX_PATH] = "";
+char g_pszOutputExtension[MAX_PATH] = "PVR";
+char g_pszOutputPath[MAX_PATH] = "";
 CImage g_Image;
 CVQCompressor g_VQCompressor;
 
@@ -119,9 +119,9 @@ bool LoadAlpha( CImage& Image, const char* pszFilename )
     {
         //add the alpha prefix
         PrefixFileName( szAlphaFilename, pszFilename, g_pszAlphaPrefix );
-    
+
         //load it
-        printf( "Alpha: %s ...", szAlphaFilename ); 
+        printf( "Alpha: %s ...", szAlphaFilename );
         if( !Image.Load( szAlphaFilename, true ) ) *szAlphaFilename = '\0'; else bChanged = true;
     }
 
@@ -129,7 +129,7 @@ bool LoadAlpha( CImage& Image, const char* pszFilename )
     if( *szAlphaFilename == '\0' && *g_pszAlphaFilename != '\0' )
     {
         strcpy( szAlphaFilename, g_pszAlphaFilename );
-        printf( "Alpha: %s ...", szAlphaFilename ); 
+        printf( "Alpha: %s ...", szAlphaFilename );
         bChanged = Image.Load( szAlphaFilename, true );
     }
 
@@ -148,7 +148,7 @@ bool BatchLoadMipmap( CImage& Image, const char* pszFilename )
     if( pRGBA->bPalette ) return ReturnError( "Batch mipmapping can only be done on 32-bit images", pszFilename );
     if( pRGBA->pRGB == NULL ) return false;
     int nMipMaps = pRGBA->CalcMipMapsFromWidth();
-    
+
     //set alpha flag
     bool bAlpha = (pRGBA->pAlpha != NULL);
 
@@ -161,7 +161,7 @@ bool BatchLoadMipmap( CImage& Image, const char* pszFilename )
     //copy over the first one
     mmrgba.pRGB[0] = pRGBA->pRGB[0]; pRGBA->pRGB[0] = NULL;
     if( bAlpha ) { mmrgba.pAlpha[0] = pRGBA->pAlpha[0];pRGBA->pAlpha[0] = NULL; }
-    
+
     //load all mipmap levels
     printf( "Loading batch...\n" );
     for( int iMipMap = 1; iMipMap < nMipMaps; iMipMap++ )
@@ -245,7 +245,7 @@ bool ProcessFile( const char* pszFilename )
 
 
         /* load/build all mipmap levels */
-        if( g_bBatchMipmap ) if( !BatchLoadMipmap( Image, pszFilename ) ) 
+        if( g_bBatchMipmap ) if( !BatchLoadMipmap( Image, pszFilename ) )
         {
             g_nGlobalIndex++;
             g_nFailed++;
@@ -331,10 +331,10 @@ bool ProcessFile( const char* pszFilename )
                 g_nSucceeded++;
                 printf( "done.\n" );
             }
-            else 
-            { 
-                printf( "failed.\n" ); 
-                g_nFailed++; 
+            else
+            {
+                printf( "failed.\n" );
+                g_nFailed++;
             }
         }
     }
@@ -372,7 +372,7 @@ int main( int argc, char* argv[] )
     const char* pszColourFormat = "SMART";
     int nVQDither = 0, nVQWeighting = 0;
 
-    //add all command line switches to the command line processor   
+    //add all command line switches to the command line processor
     CommandLine.RegisterCommandLineOption( "HELP",           "?",  0, "displays help",                                           CLF_NONE,    &bShowHelp );
     CommandLine.RegisterCommandLineOption( "EXAMPLE",        "EG", 0, "displays examples",                                       CLF_NONE,    &bShowExamples );
     CommandLine.RegisterCommandLineOption( "SHOWPARAMS",     "SP", 0, "displays an overview of the parameters selected",         CLF_NONE,    &bShowParameters );
@@ -380,19 +380,19 @@ int main( int argc, char* argv[] )
     CommandLine.RegisterCommandLineOption( "TIMETASK",       "TT", 0, "display the time taken to complete the task",             CLF_NONE,    &bTimeTask );
     CommandLine.AddGap();
 
-    CommandLine.RegisterCommandLineOption( "OUTPATH",        "OP", 1, "[path] output path",                                      CLF_NONE,    &g_pszOutputPath );
-    CommandLine.RegisterCommandLineOption( "OUTFILE",        "OF", 1, "[extension] output extension: PVR VQF C",                 CLF_SHOWDEF, &g_pszOutputExtension );
+    CommandLine.RegisterCommandLineOption( "OUTPATH",        "OP", 1, "[path] output path",                                      CLF_NONE,    (char**)&g_pszOutputPath );
+    CommandLine.RegisterCommandLineOption( "OUTFILE",        "OF", 1, "[extension] output extension: PVR VQF C",                 CLF_SHOWDEF, (char**)&g_pszOutputExtension );
     CommandLine.AddGap();
 
     CommandLine.RegisterCommandLineOption( "TWIDDLE",        "TW", 0, "twiddle the surface",                                     CLF_NONE,    &g_SaveOptions.bTwiddled );
     CommandLine.RegisterCommandLineOption( "MIPMAP",         "MM", 0, "generate/save mipmaps",                                   CLF_NONE,    &g_SaveOptions.bMipmaps );
-    CommandLine.RegisterCommandLineOption( "COLOURFORMAT",   "CF", 1, "[format] SMART 4444 1555 565 555 SMARTYUV YUV422 8888",   CLF_SHOWDEF, &pszColourFormat );
+    CommandLine.RegisterCommandLineOption( "COLOURFORMAT",   "CF", 1, "[format] SMART 4444 1555 565 555 SMARTYUV YUV422 8888",   CLF_SHOWDEF, (char**)&pszColourFormat );
     CommandLine.RegisterCommandLineOption( "PALETTEDEPTH",   "PD", 1, "[n] 0 = no palette (default), 4 = 4bpp, 8 = 8bpp",        CLF_NONE,    &g_SaveOptions.nPaletteDepth );
     CommandLine.RegisterCommandLineOption( "GBIX",           "GI", 1, "[n] initial global index. Incremented for each file",     CLF_NONE,    &g_nGlobalIndex, &g_bEnableGlobalIndex );
     CommandLine.AddGap();
 
-    CommandLine.RegisterCommandLineOption( "ALPHAPREFIX",    "AP", 1, "[prefix] load alpha from file with this prefix",          CLF_NONE,    &g_pszAlphaPrefix );
-    CommandLine.RegisterCommandLineOption( "ALPHAFILE",      "AF", 1, "[file] load alpha channel from this file instead",        CLF_NONE,    &g_pszAlphaFilename );
+    CommandLine.RegisterCommandLineOption( "ALPHAPREFIX",    "AP", 1, "[prefix] load alpha from file with this prefix",          CLF_NONE,    (char**)&g_pszAlphaPrefix );
+    CommandLine.RegisterCommandLineOption( "ALPHAFILE",      "AF", 1, "[file] load alpha channel from this file instead",        CLF_NONE,    (char**)&g_pszAlphaFilename );
     CommandLine.RegisterCommandLineOption( "INVERSEALPHA",   "IA", 0, "inverse alpha so 0xFF = transparent",                     CLF_NONE,    &bReverseAlpha );
     CommandLine.RegisterCommandLineOption( "PADEND",         "PE", 0, "pads the end of a stride texture: eg 640x480->1024x512",  CLF_NONE,    &g_SaveOptions.bPad );
     CommandLine.RegisterCommandLineOption( "RESIZEPOW2",     "P2", 0, "resizes the image so width & height are powers of 2",     CLF_NONE,    &g_bEnlargeToPow2 );
@@ -432,18 +432,18 @@ int main( int argc, char* argv[] )
     /* process command line options */
 
     //get the version number from the VQ dll
-    char szVQVersion[256];
-    VqGetVersionInfoString( szVQVersion, "FileVersion" );
+    //char szVQVersion[256];
+    //VqGetVersionInfoString( szVQVersion, "FileVersion" );
 
     //process program parameters and display the banner
     bool bContinue = true;
     if( bQuiet ) fclose(stdout);
 
-    printf( "\n%s [%s]\n%s\nVQ library version: %s\n\n", szApplication, szVersion, szOtherInfo, szVQVersion );
-    if( bShowHelp )     
-    { 
+    printf( "\n%s [%s]\n%s\n\n", szApplication, szVersion, szOtherInfo );
+    if( bShowHelp )
+    {
         //display the command line options
-        CommandLine.DisplayCommandLineOptions(); 
+        CommandLine.DisplayCommandLineOptions();
 
         //display all supported file formats
         printf("\nExtensions supported: " );
@@ -457,10 +457,10 @@ int main( int argc, char* argv[] )
         printf( "\n" );
 
         //don't continue
-        bContinue = false; 
+        bContinue = false;
     }
     if( bShowExamples )
-    { 
+    {
         const char* pszApp = CommandLine.GetAppFilename();
         printf( "\n\nExamples:\n" );
         printf( "\n\t%s *.TGA -TWIDDLE -MIPMAP -GBIX 1000\n\tconvert all tga files in the current directory to twiddled,\n\tmipmapped pvr files with global index headers starting at 1000\n", pszApp );
@@ -469,7 +469,7 @@ int main( int argc, char* argv[] )
         printf( "\n\t%s foo.bmp -BATCHMIPMAP\n\tBuilds mipmaps from foo.bmp, 1foo.bmp, 2foo.bmp ... Nfoo.bmp\n", pszApp );
         printf( "\n\t%s foo.tga -BATCHMIPMAP -ALPHAPREFIX a -CF 4444\n\tBuilds mipmaps with alpha from\n\tfoo.tga + afoo.tga, 1foo.tga + a1foo.tga ... Nfoo.tga + aNfoo.tga\n\twhere Nfoo.tga is the 1x1 image\n", pszApp );
         printf( "\n\t%s @options.lst\n\tuse command line options specified in the file \"options.lst\"\n", pszApp );
-        bContinue = false; 
+        bContinue = false;
     }
 
     //do the processing if we should continue
@@ -486,9 +486,9 @@ int main( int argc, char* argv[] )
         if( stricmp( pszColourFormat, "SMARTYUV" ) == 0 )   { g_SaveOptions.ColourFormat = g_VQCompressor.m_icf = ICF_SMARTYUV;  } else
         if( stricmp( pszColourFormat, "YUV422" ) == 0 )     { g_SaveOptions.ColourFormat = g_VQCompressor.m_icf = ICF_YUV422; } else
         if( stricmp( pszColourFormat, "8888" ) == 0 )
-        { 
+        {
             if( g_SaveOptions.nPaletteDepth == 0 ) { DisplayStatusMessage( "8888 specified with no palette depth - assuming a depth of 8bpp" ); g_SaveOptions.nPaletteDepth = 8; }
-            g_SaveOptions.ColourFormat = g_VQCompressor.m_icf = ICF_8888; 
+            g_SaveOptions.ColourFormat = g_VQCompressor.m_icf = ICF_8888;
         }
         else
         { ShowErrorMessage( "%s - unknown colour format", pszColourFormat ); return -1; }
@@ -520,7 +520,7 @@ int main( int argc, char* argv[] )
         {
             ShowErrorMessage( "Paged and batch mipmap loading options cannot be used together\n" );
             return -1;
-            
+
         }
         g_VQCompressor.m_bMipmap = g_SaveOptions.bMipmaps;
 

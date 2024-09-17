@@ -17,7 +17,7 @@ typedef bool (*FILEPROCESSINGFUNC)(const char* pszFilename);
 #define CLF_NONE    (0)
 #define CLF_SHOWDEF (1)
 
-class CCommandLineProcessor  
+class CCommandLineProcessor
 {
 public:
 	CCommandLineProcessor( int argc, char** argv );
@@ -27,7 +27,7 @@ public:
     bool RegisterCommandLineOption( const char* pszLongSwitch, const char* pszShortSwitch, int nCommandLineOptions, const char* pszDescription, int nFlags, int* pnValue,               bool* pbFound = NULL  );
     bool RegisterCommandLineOption( const char* pszLongSwitch, const char* pszShortSwitch, int nCommandLineOptions, const char* pszDescription, int nFlags, unsigned long int* puValue, bool* pbFound = NULL  );
     bool RegisterCommandLineOption( const char* pszLongSwitch, const char* pszShortSwitch, int nCommandLineOptions, const char* pszDescription, int nFlags, float* pfValue,             bool* pbFound = NULL  );
-    bool RegisterCommandLineOption( const char* pszLongSwitch, const char* pszShortSwitch, int nCommandLineOptions, const char* pszDescription, int nFlags, const char** ppszValue,           bool* pbFound = NULL  );
+    bool RegisterCommandLineOption( const char* pszLongSwitch, const char* pszShortSwitch, int nCommandLineOptions, const char* pszDescription, int nFlags, char** ppszValue,           bool* pbFound = NULL  );
     void AddGap();
 
     bool ParseCommandLine();
@@ -46,10 +46,10 @@ protected:
     //command line option structure
     struct CommandLineOption
     {
-        const char* pszLongSwitch; 
-        const char* pszShortSwitch; 
-        int nCommandLineOptions; 
-        const char* pszDescription; 
+        const char* pszLongSwitch;
+        const char* pszShortSwitch;
+        int nCommandLineOptions;
+        const char* pszDescription;
         int nFlags;
         bool* pbFound;
 
@@ -62,9 +62,9 @@ protected:
         void Init( const char* _pszLongSwitch, const char* _pszShortSwitch, int _nCommandLineOptions, const char* _pszDescription, int _nFlags, bool* _pbFound );
         void SetOption( int i, char* pszOption );
     };
-    
+
     //list of command line options
-    struct CommandLineOptionList 
+    struct CommandLineOptionList
     {
         CommandLineOption Option;
         CommandLineOptionList* next;
@@ -83,7 +83,7 @@ protected:
 #endif
 
 
-    
+
     //list of file specs
     struct StringList
     {
